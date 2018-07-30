@@ -8,6 +8,7 @@ public class Room : MonoBehaviour
     public int size;
     public int mod;
     public GameObject ref_cellprefab;
+	public int minX, minZ;
     public CoordinatePair[] dirs = {
 
         new CoordinatePair(1, 0),
@@ -16,19 +17,21 @@ public class Room : MonoBehaviour
         new CoordinatePair(0, -1)
 
     };
-    //other vars
+    //other vars    
     public int cur_index;
     public CoordinatePair cloneAt;
     //Use this for initialization
-    public GameObject[,] CellsInRoom = new GameObject[100, 100];
+    public GameObject[,] CellsInRoom = new GameObject[10, 10];
     public List<GameObject> acir = new List<GameObject>(); //abbreviated for active cells in room
-    void Awake()
-    {
 
+
+    void Start()
+    {
+		transform.position = new Vector3 (minX, 0, minZ);
         GenerateSeed();
 
-        print(cloneAt.x + " , " + cloneAt.z);
-
+ 		print(cloneAt.x + " , " + cloneAt.z);
+		 
         StartCoroutine(randomWalk());
     }
 
@@ -41,7 +44,7 @@ public class Room : MonoBehaviour
     void GenerateSeed()
     {
         //generating random coordinates to place seed
-        cloneAt = new CoordinatePair(Random.Range(0, 9), Random.Range(0, 9));
+        cloneAt = new CoordinatePair(Random.Range(minX, minX + 9), Random.Range(minZ, minZ + 9));
         //uses generatecell function
         acir.Add(GenerateCell());
     }
@@ -52,7 +55,7 @@ public class Room : MonoBehaviour
         GameObject ref_newcell = Instantiate(ref_cellprefab);
         Ground_Cell ref_cellclass = ref_newcell.GetComponent<Ground_Cell>();
         //putting reference inside the list
-        CellsInRoom[cloneAt.x, cloneAt.z] = ref_newcell;
+        CellsInRoom[cloneAt.x - minX, cloneAt.z - minZ] = ref_newcell;
         //initializing the object instance
         ref_newcell.name = "Cell at gridposition " + cloneAt.x + "," + cloneAt.z;
         ref_newcell.transform.position = new Vector3((float)cloneAt.x + 0.5f, 0f, (float)cloneAt.z + 0.5f);
@@ -71,7 +74,7 @@ public class Room : MonoBehaviour
         cloneAt.x = Mathf.Abs(cloneAt.x); //prevents runtime error 
         cloneAt.z = Mathf.Abs(cloneAt.z);
 
-        if (verifyBounds())
+        if (verifyBounds(cloneAt))
         {
             acir.Add(GenerateCell());
 
@@ -79,9 +82,9 @@ public class Room : MonoBehaviour
     }
 
     // Change signature to accept inputs (float x, float z)
-    bool verifyBounds()
+	bool verifyBounds(CoordinatePair cur_cellPos)
     {
-        if (CellsInRoom[cloneAt.x, cloneAt.z] == null && cloneAt.x < 10 && cloneAt.x > -1 && cloneAt.z < 10 && cloneAt.z > -1)
+		if (CellsInRoom[cur_cellPos.x - minX, cur_cellPos.z - minZ] == null && cur_cellPos.x < minX + 10 && cur_cellPos.x > minX -1 && cur_cellPos.z < minZ + 10 && cur_cellPos.z > minZ - 1)
         {
             return true;
 
@@ -90,7 +93,7 @@ public class Room : MonoBehaviour
             return false;
         acir.RemoveAt(cur_index);
         cur_index = acir.Count - 1;
-        cloneAt = acir[cur_index].GetComponent<Ground_Cell>().coords;
+		cur_cellPos = acir[cur_index].GetComponent<Ground_Cell>().coords;
     }
 
     IEnumerator randomWalk()

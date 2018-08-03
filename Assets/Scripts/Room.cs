@@ -125,14 +125,20 @@ public class Room : MonoBehaviour
 		} else {
 			//I exited the loop because I have no directions left to check
 			print (currentIndex + "," + activeCellsInRoom.Count);
+
+			//check if I can remove cells
 			if (!(activeCellsInRoom.Count == 0)) {
 				activeCellsInRoom.RemoveAt(currentIndex);
 			}
-
+			//change curnt cell dir to explore
 			currentIndex -= 1;  
+
+			//abs? inefficient code
 			if (currentIndex < 0) {
 				currentIndex = 0;
 			}
+
+			//push new coords from curnt index to cloneAt
 			if (!(activeCellsInRoom.Count == 0)) {
 				cloneAt = activeCellsInRoom [currentIndex].GetComponent<Ground_Cell> ().coords;
 			}
@@ -142,12 +148,12 @@ public class Room : MonoBehaviour
     // Change signature to accept inputs (float x, float z)
     bool VerifyBounds(CoordinatePair cur_cellPos)
     {
-
+		//if within range of grid and cell is not occupied
 		if (cur_cellPos.x < minX + 10 && cur_cellPos.x > minX - 1 && cur_cellPos.z < minZ + 10 && cur_cellPos.z > minZ - 1)
         {
 			if(CellsInRoom[cur_cellPos.x - minX,  cur_cellPos.z - minZ] == null){
             	return true;
-				 
+				 //valid
 			}
 			else
 				return false;
@@ -160,6 +166,7 @@ public class Room : MonoBehaviour
         
     }
 
+	//coroutine which generates room
     IEnumerator randomWalk()
     {
         for (int i = 0; i < 100; i++)

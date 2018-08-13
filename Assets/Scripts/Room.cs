@@ -6,7 +6,8 @@ public class Room : MonoBehaviour
 {
     //ref vars
 	public GameObject refCellPrefab;
-
+	public GameObject generator;
+	//public GenerateDungeon generatorScript; 
 	//room-generation oriented vars
     public int mod;
 	public int minX, minZ; //publicly set minimum x and z axis coordinates for random seed and boundary generation
@@ -21,6 +22,7 @@ public class Room : MonoBehaviour
 
     void Start()
     {
+		
 		//initialize list
 		UnreadDirs = new List<CoordinatePair> ();
 
@@ -32,6 +34,8 @@ public class Room : MonoBehaviour
 
         //run the coroutine for full room generation
         StartCoroutine(randomWalk());
+
+
     }
 
     //generates the seed to start the room
@@ -52,6 +56,7 @@ public class Room : MonoBehaviour
         GameObject ref_newcell = Instantiate(refCellPrefab);
         Ground_Cell groundCellScript = ref_newcell.GetComponent<Ground_Cell>();
 
+
         //putting reference inside the list
         CellsInRoom[cloneAt.x - minX, cloneAt.z - minZ] = ref_newcell;
 
@@ -61,9 +66,14 @@ public class Room : MonoBehaviour
         ref_newcell.transform.parent = transform;
         groundCellScript.coords = cloneAt;
 
+		//putting cell in allcells list for wall
+		generator.GetComponent<GenerateDungeon>().allCells[cloneAt.x, cloneAt.z] = ref_newcell;
+		//print (generator.GetComponent<GenerateDungeon>().allCells [cloneAt.x, cloneAt.z]);
 		//returns the object instance
         return ref_newcell;
+
     }  
+
 
 	//explores dirs and adds cells
     void GenerateStep()
@@ -123,8 +133,8 @@ public class Room : MonoBehaviour
 			//reset current index to new length (index wise)
 			currentIndex = activeCellsInRoom.Count - 1; 
 		} else {
+			
 			//I exited the loop because I have no directions left to check
-			print (currentIndex + "," + activeCellsInRoom.Count);
 
 			//check if I can remove cells
 			if (!(activeCellsInRoom.Count == 0)) {
@@ -166,7 +176,7 @@ public class Room : MonoBehaviour
         
     }
 
-	//coroutine which generates room
+	//coroutine which generates room        
     IEnumerator randomWalk()
     {
         for (int i = 0; i < 100; i++)
@@ -176,6 +186,10 @@ public class Room : MonoBehaviour
 
         }
 
+
     }
+
+
+
 }
 

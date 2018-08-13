@@ -7,22 +7,31 @@ public class GenerateDungeon : MonoBehaviour
     //reference vars
     public GameObject refRoomPrefab;
 
+	public Ground_Wall refwall;
+
+
     //room-oriented variables
     public int numRooms = 100;
     public int rowsAndColumns;
     public GameObject[] rooms;
     int spawnAtX = 0, spawnAtZ = 0;
+	public GameObject[,] allCells = new GameObject[100,100];   
+
 
     // Use this for initialization
     void Start()
     {
         //initialization
+
         rooms = new GameObject[numRooms];
         transform.position = new Vector3(spawnAtX, 0, spawnAtZ);
 
+		   
         //generate n amount of rooms
         RoomsGenerate(numRooms);
         rowsAndColumns = numRooms;
+
+		
     }
 
     // Update is called once per frame
@@ -30,7 +39,8 @@ public class GenerateDungeon : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            RoomsRegenerate();
+            //RoomsRegenerate();
+			StartCoroutine(GenerateWalls ());
         }
     }
 
@@ -83,7 +93,37 @@ public class GenerateDungeon : MonoBehaviour
         RoomsGenerate(numRooms);
     }
 
+	IEnumerator GenerateWalls(){
+		foreach(GameObject n in allCells){
+			print ("nama");
+		}
+		for (Vector2 i = new Vector2 (0f,0f); i.y < allCells.Length; i.x++) {
+			
+			if (i.x == 100) {
+				i.x = 0;
+				i.y++;
+			}
+			print (i.x + " , " + i.y);
+
+			yield return new WaitForSeconds (0.1f);
+			checkSpot (i);//right
+		
+
+		}
+	}
+	void checkSpot (Vector2 index){
+		
+		if( allCells[(int)index.x , (int)index.y] == null){
+			print (allCells [(int) index.x, (int) index.y]);
+			GenerateWallCube (index.x, index.y);
+		}
+	}
+	void GenerateWallCube(float x, float z){
+		Ground_Wall  refnewWall = Instantiate (refwall);
+		refnewWall.transform.parent = transform;
+		refnewWall.transform.position = new Vector3 (x + 0.5f, 0f, z + 0.5f);
 
 
+	}
 
 }
